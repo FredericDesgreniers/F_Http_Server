@@ -37,7 +37,7 @@ int main()
     
     if(iResult != 0)
     {
-        printf("WSAStartup has failed: %d\n");
+        printf("WSAStartup has failed: %d\n", WSAGetLastError());
         std::cin.get();
         return 1;
     }
