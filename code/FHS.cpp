@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -11,6 +12,7 @@
 
 #include "Socket.cpp"
 #include "HttpServer.cpp"
+#include "Template.cpp"
 
 WSADATA wsaData;
 
@@ -22,6 +24,12 @@ void handleIndex(HttpRequest* request, HttpResponse* response)
 void handleAbout(HttpRequest* request, HttpResponse* response)
 {
     response->sendBody("about me page");
+}
+
+void handleTemplatePage(HttpRequest* request, HttpResponse* response)
+{
+    Template t("test.ft");
+    response->sendBody(t.execute());
 }
 
 void handle404(HttpRequest* request, HttpResponse* response)
@@ -42,10 +50,10 @@ int main()
         return 1;
     }
     
-    
     HttpServer httpServer("8080");
     
     httpServer.addRegexPath({std::regex("^\/$"), &handleIndex});
+    httpServer.addRegexPath({std::regex("^\/template$"), &handleTemplatePage});
     httpServer.addRegexPath({std::regex("^\/about$"), &handleAbout});
     httpServer.addRegexPath({std::regex("^\/.+"), &handle404});
     
