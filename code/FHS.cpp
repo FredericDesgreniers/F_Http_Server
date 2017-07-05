@@ -12,6 +12,7 @@
 
 #include "Socket.cpp"
 #include "HttpServer.cpp"
+#include "FileLoader.cpp"
 #include "Template.cpp"
 
 WSADATA wsaData;
@@ -28,7 +29,7 @@ void handleAbout(HttpRequest* request, HttpResponse* response)
 
 void handleTemplatePage(HttpRequest* request, HttpResponse* response)
 {
-    Template t("templates/test.ft");
+    Template t("test.ft");
     
     response->sendBody(t.execute());
 }
@@ -47,13 +48,9 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
     
     resourcePath += parts[parts.size()-1];
     
-    //This works since templates aren't dynamic at the moment
-    //Should switch to something else once templates don't
-    //simply load a file as is. 
-    //Or should static resources be dynamic? 
-    Template resourceTemplate("resources/"+resourcePath); 
+    FileLoader fileLoader("resources/"+resourcePath); 
     
-    response->sendBody(resourceTemplate.execute());
+    response->sendBody(fileLoader.read());
 }
 
 //NOTE: This could probably be handled by default. 
