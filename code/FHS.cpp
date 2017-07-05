@@ -15,8 +15,6 @@
 #include "FileLoader.cpp"
 #include "Template.cpp"
 
-WSADATA wsaData;
-
 void handleIndex(HttpRequest* request, HttpResponse* response)
 {
     response->sendBody("Index!");
@@ -64,17 +62,6 @@ void handle404(HttpRequest* request, HttpResponse* response)
 
 int main()
 {
-    //TODO: Move somewhere else, possibly in httpServer constructor
-    //      aka should be handled by default
-    int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-    
-    if(iResult != 0)
-    {
-        printf("WSAStartup has failed: %d\n", WSAGetLastError());
-        std::cin.get();
-        return 1;
-    }
-    
     HttpServer httpServer("8080");
     
     httpServer.addRegexPath({std::regex("^\/$"), &handleIndex});

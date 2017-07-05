@@ -1,5 +1,7 @@
 #include "HttpServer.h"
 
+WSADATA wsaData;
+
 HttpRequest::HttpRequest(HttpRequestInfo info) : info(info)
 {
     
@@ -84,6 +86,15 @@ void HttpResponse::close()
 
 HttpServer::HttpServer(std::string port)
 {
+    int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+    
+    if(iResult != 0)
+    {
+        printf("WSAStartup has failed: %d\n", WSAGetLastError());
+        std::cin.get();
+        exit(EXIT_FAILURE);
+    }
+    
     serverSocket = new ServerSocket({"localhost", port});
 }
 
