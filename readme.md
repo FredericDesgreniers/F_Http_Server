@@ -8,6 +8,11 @@ NOTE: This project uses a non-standard build approach where every file is "combi
 
 The main reason for doing this is to make the compillation process as simple as possible using a .bat file since the aim of this project is to use as few tools and libraries as possible outside of a c++ compiler and a simple text editor.
 
+Keeping the files as seperate compillation units would be both slower(Since no incremental compillation is used) and require editing the build.bat for any new file. 
+
+
+### Guide
+
 CL.exe must be properly configured as an envrionement variable.
 Once that is done, run build.bat to create the FHS.exe
 
