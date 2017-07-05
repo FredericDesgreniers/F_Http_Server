@@ -5,6 +5,22 @@ HttpRequest::HttpRequest(HttpRequestInfo info) : info(info)
     
 }
 
+std::vector<std::string> HttpRequestInfo::getVectorPath()
+{
+    std::stringstream ss;
+    ss.str(path);
+    std::string item;
+    
+    std::vector<std::string> result;
+    
+    while(std::getline(ss, item, '/'))
+    {
+        result.push_back(item);
+    }
+    
+    return result;
+}
+
 HttpResponse::HttpResponse(ClientSocket* destination) : destination(destination)
 {
 }

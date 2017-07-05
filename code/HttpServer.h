@@ -11,6 +11,8 @@ struct HttpRequestInfo
     std::string type;
     std::string path;
     std::string version;
+    
+    std::vector<std::string> getVectorPath();
 };
 
 class HttpRequest
