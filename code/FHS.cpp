@@ -33,6 +33,7 @@ void handleTemplatePage(HttpRequest* request, HttpResponse* response)
     response->sendBody(t.execute());
 }
 
+//NOTE: static resources shouldn't be handled by the user since it's the same each time
 void handleStaticResources(HttpRequest* request, HttpResponse* response)
 {
     std::vector<std::string> parts = request->info.getVectorPath();
@@ -46,11 +47,16 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
     
     resourcePath += parts[parts.size()-1];
     
+    //This works since templates aren't dynamic at the moment
+    //Should switch to something else once templates don't
+    //simply load a file as is. 
+    //Or should static resources be dynamic? 
     Template resourceTemplate("resources/"+resourcePath); 
     
     response->sendBody(resourceTemplate.execute());
 }
 
+//NOTE: This could probably be handled by default. 
 void handle404(HttpRequest* request, HttpResponse* response)
 {
     response->sendStatus("404", "page not found");
@@ -61,6 +67,8 @@ void handle404(HttpRequest* request, HttpResponse* response)
 
 int main()
 {
+    //TODO: Move somewhere else, possibly in httpServer constructor
+    //      aka should be handled by default
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     
     if(iResult != 0)
