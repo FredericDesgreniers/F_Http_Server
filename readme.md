@@ -3,6 +3,11 @@
 This is an implementation of an http server made in c++ using only standard libraries. 
 
 ## Build
+
+NOTE: This project uses a non-standard build approach where every file is "combined" into one big file. For this reason, it does not compile properly using IDE's such as visual studio. However, it should work fine with any compiller from the command line. 
+
+The main reason for doing this is to make the compillation process as simple as possible using a .bat file since the aim of this project is to use as few tools and libraries as possible outside of a c++ compiler and a simple text editor.
+
 CL.exe must be properly configured as an envrionement variable.
 Once that is done, run build.bat to create the FHS.exe
 
