@@ -22,6 +22,9 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
 {
     std::vector<std::string> parts = request->info.getVectorPath();
     
+    //This whole path thing should be handled by the http server. 
+    //This would get tedious if used for a lot of different things
+    
     std::string resourcePath;
     
     for(int i=2; i < parts.size()-1; i++)
@@ -31,6 +34,7 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
     
     resourcePath += parts[parts.size()-1];
     
+    //Should probably make a resource loader that defaults to /resources
     FileLoader fileLoader("resources/"+resourcePath); 
     
     response->sendBody(fileLoader.read());
