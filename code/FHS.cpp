@@ -12,7 +12,12 @@ void handleAbout(HttpRequest* request, HttpResponse* response)
 
 void handleTemplatePage(HttpRequest* request, HttpResponse* response)
 {
-    Template t("test.ft");
+    static int counter = 0;
+    static Template t("test.ft");
+    
+    t.reset();
+    
+    t.setValue("counter", std::to_string(counter++));
     
     response->sendBody(t.execute());
 }

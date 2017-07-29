@@ -10,6 +10,8 @@ This is a template
 <br />
 Does it work? 
 
+{counter}
+
 It sure does
 </body>
 </html>
