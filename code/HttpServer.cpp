@@ -155,7 +155,9 @@ void HttpServer::createRequest(ClientSocket* client)
     std::string requestPath = httpArgs.at(1);
     std::string requestVersion = httpArgs.at(2);
     
-    HttpRequest* request = new HttpRequest({requestType, requestPath, requestVersion});
+    std::transform(requestType.begin(), requestType.end(), requestType.begin(), ::tolower);
+    
+    HttpRequest* request = new HttpRequest({(requestType == "get")? GET:POST, requestPath, requestVersion});
     
     //Get all the headers line by line
     //each header only spans 1 line and is split into 
@@ -171,13 +173,31 @@ void HttpServer::createRequest(ClientSocket* client)
         //Get string to to the next \n, which should be the value
         getline(headerSS, value);
         
+        if (key == "\r")
+        {
+            break;
+        }
+        
         //If it's not blank, add it to the request headers
         if(key.length() > 0)
         {
             request->headers[key] = Header{key, value}; 
         }
+        else
+        {
+            break;
+        }
         
     }
+    
+    std::stringstream bodyStream;
+    
+    while(getline(iss, line))
+    {
+        bodyStream << line;
+    }
+    
+    request->body = bodyStream.str();
     
     processRequest(request, new HttpResponse(client));
     

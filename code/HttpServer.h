@@ -7,10 +7,30 @@ struct Header
     std::string value;
 };
 
+enum HttpRequestType
+{
+    POST, GET
+};
+
+std::string getRequestTypeString(HttpRequestType type)
+{
+    switch(type)
+    {
+        case GET:
+        {
+            return "GET";
+        }
+        case POST:
+        {
+            return "POST";
+        }
+    };
+};
+
 //HttpRequestInfo stores information about  http requests
 struct HttpRequestInfo
 {
-    std::string type;
+    HttpRequestType type;
     std::string path;
     std::string version;
     
@@ -28,6 +48,8 @@ class HttpRequest
     
     std::map<std::string, Header> headers;
     
+    
+    std::string body;
 };
 
 //HttpResponse is used to send an http response following an http request
@@ -39,6 +61,7 @@ class HttpResponse
     
     bool statusSent = false;
     bool headersSent = false;
+    
     
     public:
     HttpResponse(ClientSocket* destination);
@@ -57,6 +80,7 @@ class HttpResponse
     
     //properly close the request
     void close();
+    
 };
 
 //Path is used to match a regex path with a function that is triggered on request

@@ -1,13 +1,79 @@
 #include "includes.h"
+#include <filesystem>
+#include <experimental/filesystem> 
+#include <direct.h>
+namespace fs = std::experimental::filesystem;
 
 void handleIndex(HttpRequest* request, HttpResponse* response)
 {
-    response->sendBody("Index!");
+    std::stringstream fileListString;
+    
+    std::string path = "files";
+    for(auto &p : fs::directory_iterator(path))
+    {
+        fileListString << p << "\n";
+    }
+    
+    response->sendBody(fileListString.str());
 }
+
+
+//NOTE: This could probably be handled by default. 
+void handleFile(HttpRequest* request, HttpResponse* response)
+{
+    std::string outputPath = "files/"+request->info.path.substr(1);
+    
+    if(outputPath.find(":") != std::string::npos || outputPath.find("..") != std::string::npos)
+    {
+        response->sendStatus("204", "Non secure path");
+        response->sendBody("Non secure path\n");
+        return;
+    }
+    
+    switch(request->info.type)
+    {
+        case GET:
+        {
+            std::ifstream fileToRead;
+            fileToRead.open(outputPath);
+            if(fileToRead.is_open())
+            {
+                std::stringstream fileBody;
+                std::string line;
+                while(getline(fileToRead, line))
+                {
+                    fileBody << line;
+                }
+                response->sendBody(fileBody.str()+"\n");
+            }
+            else
+            {
+                response->sendStatus("404", "File not found...");
+                response->sendBody("404\n");
+            }
+            
+            
+        }break;
+        
+        case POST:
+        {
+            response->sendBody("Putting file "+request->body + " at " + request->info.path + "\n");
+            
+            std::ofstream fileToWrite;
+            
+            _mkdir("files");
+            
+            fileToWrite.open(outputPath);
+            fileToWrite << request->body;
+            fileToWrite.close();
+        }break;
+    }
+}
+
 
 void handleAbout(HttpRequest* request, HttpResponse* response)
 {
-    response->sendBody("about me page");
+    response->sendBody(getRequestTypeString(request->info.type) + "about me page");
 }
 
 void handleTemplatePage(HttpRequest* request, HttpResponse* response)
@@ -45,24 +111,13 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
     response->sendBody(fileLoader.read());
 }
 
-//NOTE: This could probably be handled by default. 
-void handle404(HttpRequest* request, HttpResponse* response)
-{
-    response->sendStatus("404", "page not found");
-    
-    response->sendBody("404 - page not found! - "+request->info.path);
-}
-
 
 int main()
 {
     HttpServer httpServer("8080");
     
     httpServer.addRegexPath({std::regex("^\/$"), &handleIndex});
-    httpServer.addRegexPath({std::regex("^\/template$"), &handleTemplatePage});
-    httpServer.addRegexPath({std::regex("^\/about$"), &handleAbout});
-    httpServer.addRegexPath({std::regex("^\/static\/.+"), &handleStaticResources});
-    httpServer.addRegexPath({std::regex("^\/.+"), &handle404});
+    httpServer.addRegexPath({std::regex("^\/.+"), &handleFile});
     
     httpServer.start();
     
