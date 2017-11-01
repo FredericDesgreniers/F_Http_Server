@@ -13,7 +13,7 @@ void handleIndex(HttpRequest* request, HttpResponse* response)
     {
         fileListString << p << "\n";
     }
-    
+    response->addHeader({"Content-Disposition","inline"});
     response->sendBody(fileListString.str());
 }
 
@@ -44,6 +44,7 @@ void handleFile(HttpRequest* request, HttpResponse* response)
                 {
                     fileBody << line;
                 }
+                response->addHeader({"Content-Disposition","attachement"});
                 response->sendBody(fileBody.str()+"\n");
             }
             else
