@@ -207,7 +207,7 @@ void HttpServer::createRequest(ClientSocket* client)
 void HttpServer::processRequest(HttpRequest* request, HttpResponse* response)
 {
     //TODO add way to properly log
-    std::cout << "Processing "<< request->info.type << " response for path " << request->info.path << std::endl;
+    std::cout << "Processing "<< getRequestTypeString(request->info.type) << " response for path " << request->info.path << std::endl;
     
     //response->addHeader({"Transfer-Encoding", "chunked"});
     
