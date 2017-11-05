@@ -4,24 +4,37 @@
 #include <direct.h>
 namespace fs = std::experimental::filesystem;
 
+static std::string fileDir = ".";
+
 void handleIndex(HttpRequest* request, HttpResponse* response)
 {
     std::stringstream fileListString;
     
-    std::string path = "files";
-    for(auto &p : fs::directory_iterator(path))
+    for(auto &p : fs::directory_iterator(fileDir))
     {
-        fileListString << p << "\n";
+        
+        auto &path = p.path();
+        if(path.has_extension())
+        {
+            fileListString << (path.string().substr(fileDir.size()+1)) << "<br>";
+        }
     }
+    
     response->addHeader({"Content-Disposition","inline"});
     response->sendBody(fileListString.str());
+    
 }
 
 
 //NOTE: This could probably be handled by default. 
 void handleFile(HttpRequest* request, HttpResponse* response)
 {
-    std::string outputPath = "files/"+request->info.path.substr(1);
+    std::string outputPath = fileDir+"/"+request->info.path.substr(1);
+    
+    if(outputPath[0] == '/')
+    {
+        outputPath = outputPath.substr(1);
+    }
     
     if(outputPath.find(":") != std::string::npos || outputPath.find("..") != std::string::npos)
     {
@@ -58,15 +71,22 @@ void handleFile(HttpRequest* request, HttpResponse* response)
         
         case POST:
         {
-            response->sendBody("Putting file "+request->body + " at " + request->info.path + "\n");
             
             std::ofstream fileToWrite;
             
-            _mkdir("files");
-            
             fileToWrite.open(outputPath);
-            fileToWrite << request->body;
-            fileToWrite.close();
+            if(fileToWrite.is_open())
+            {
+                response->sendBody("Putting file "+request->body + " at " + outputPath + "\n");
+                
+                fileToWrite << request->body;
+                fileToWrite.close();
+            }
+            else
+            {
+                response->sendStatus("204", "non secure path");
+                response->sendBody("Could not put file in directory, are you trying to escape?");
+            }
         }break;
     }
 }
@@ -113,9 +133,36 @@ void handleStaticResources(HttpRequest* request, HttpResponse* response)
 }
 
 
-int main()
+int main(int argCount, char *args[])
 {
-    HttpServer httpServer("8080");
+    std::string port = "8080";
+    
+    
+    
+    for(int argIndex=0; argIndex < argCount; argIndex++)
+    {
+        std::string arg(args[argIndex]);
+        
+        
+        if(arg == "-v")
+        {
+            verbose = true;
+        }
+        else if(arg == "-p")
+        {
+            port = args[++argIndex];
+        }
+        else if(arg == "-d")
+        {
+            fileDir = args[++argIndex];
+        }
+    }
+    
+    _mkdir(fileDir.c_str());
+    
+    std::cout << "Starting server with verbose = " << std::to_string(verbose) << ", port = "  << port << " and filedir = " << fileDir << std::endl;
+    
+    HttpServer httpServer(port);
     
     httpServer.addRegexPath({std::regex("^\/$"), &handleIndex});
     httpServer.addRegexPath({std::regex("^\/.+"), &handleFile});

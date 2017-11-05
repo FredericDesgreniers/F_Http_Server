@@ -41,7 +41,13 @@ void HttpResponse::sendStatus(std::string code, std::string message)
 {
     //This is the standard http header
     //TODO add way to change version, but default version should stay 1.1
-    destination->sendString("HTTP/1.1 "+code+" "+message+"\r\n");
+    
+    std::string statusString = "HTTP/1.1 "+code+" "+message+"\r\n";
+    destination->sendString(statusString);
+    if(verbose)
+    {
+        std::cout << statusString << std::endl;
+    }
     statusSent = true;
 }
 
@@ -63,6 +69,11 @@ void HttpResponse::sendHeaders()
     }
     headerString += "\n";
     
+    if(verbose)
+    {
+        std::cout << headerString << std::endl;
+    }
+    
     destination->sendString(headerString);
     headersSent = true;
 }
@@ -77,6 +88,11 @@ void HttpResponse::sendBody(std::string body)
     }
     
     destination->sendString(body);
+    
+    if(verbose)
+    {
+        std::cout << body << std::endl;
+    }
 }
 
 void HttpResponse::close()
@@ -122,6 +138,13 @@ void HttpServer::createRequest(ClientSocket* client)
     //which contains info such as headers, path, method
     std::string requestString;
     client->readString(requestString);
+    
+    
+    if(verbose)
+    {
+        std::cout << requestString << std::endl;
+    }
+    
     
     //Use this stream to traverse the request string
     std::stringstream iss(requestString);

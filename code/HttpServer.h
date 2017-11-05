@@ -27,6 +27,8 @@ std::string getRequestTypeString(HttpRequestType type)
     };
 };
 
+static bool verbose = false;
+
 //HttpRequestInfo stores information about  http requests
 struct HttpRequestInfo
 {
